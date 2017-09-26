@@ -113,11 +113,20 @@
                         this.existBlockMap[r + activeblock.row ]= zhangyizhi(this.existBlockMap[r + activeblock.row],c+activeblock.col+3,theAbChar);
                     }
                 }
+
+
             }
 
             /*新老融合以后我们要，调用一下自己的根据地图渲染函数*/
 
+            /*新老融合以后我们要判断死没了*/
             this.creatBlocksbymap();
+
+           if(game.map.existBlockMap[0] != "xxx000000000000xxx"){
+              game.stop();
+           }
+
+
 
         },
         xiaohang:function (){
@@ -129,23 +138,13 @@
 
             /*然后遍历行数*/
             for(var row = this.rowAmount -1; row > 0; row --){
-
-                var num = 0;
-
-                for(var col = 3; col < this.colAmount + 3; col ++){
-                    var c = this.existBlockMap[row].substr(col,1);
-
-
-                    if(c == "0"){
-                        num ++;
+                    if(this.existBlockMap[row].indexOf("0") == -1){
+                        fullrowNumber.push(row)
                     }
-                }
-
-                if(num == 0){
-                    fullrowNumber.push(row);
-                }
 
             }
+
+
             /*这个是遍历存储的数组*/
             for(var i = 0 ; i < fullrowNumber.length; i ++){
                 this.existBlockMap[fullrowNumber[i]] = "xxx000000000000xxx";
@@ -155,11 +154,13 @@
 
             for(var i = fullrowNumber.length -1;i >=0; i-- ){
                 for(var j = fullrowNumber[i]; j > 0 ; j --){
+
+                    /*也就是说*/
                     this.existBlockMap[j] = this.existBlockMap[j -1];
                 }
 
                 this.creatBlocksbymap();
-                alert(22)
+
             }
 
 

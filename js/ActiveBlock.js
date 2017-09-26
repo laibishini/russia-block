@@ -56,6 +56,11 @@
 
             this.bindListener();
 
+            /*这句话的意思是touchmove往下的函数节流*/
+
+
+            this.ronghe = false;
+
 
 
                 /*也有行的和列左上角那个方块的行和列*/
@@ -149,7 +154,7 @@
                 /*xxx不能切所以是从3列开始切*/
                 qiepian.push(game.map.existBlockMap[r].substr(this.col+3+1,4));
 
-                console.log(qiepian)
+
 
             }
             if( checktofourfour(qiepian,this.fourfourMap)){
@@ -176,14 +181,82 @@
                     /*右边*/
                 }else if(event.keyCode == 40){
                     that.godown();
+
+                    that.gobottom();
                     /*下边*/
                 }
             }
+
+            /*绑定手机时间*/
+
+            var startX ;
+            var startY;
+
+            var yidong = false;
+
+            /*触摸开始*/
+            game.canvas.addEventListener("touchstart",function(event){
+                startX= event.touches[0].pageX;
+                startY= event.touches[0].pageY;
+                console.log(startX)
+
+            })
+            /*触摸左右移动*/
+            game.canvas.addEventListener("touchmove",function(event){
+                /*让当前移动的X 减去开始的X值*/
+                var dX = event.touches[0].pageX - startX;
+                var dY = event.touches[0].pageY - startY;
+                /*判定标准*/
+                if(dX < -20){
+                    that.goleft();
+                    /*接着在移动的位置恢复成开始点击的位置*/
+                    startX = event.touches[0].pageX;
+                    yidong = true;
+                }else if (dX > 20){
+                    that.goright();
+                    yidong=false;
+
+                    startX = event.touches[0].pageX;
+                }
+
+                /*手指往下*/
+
+                if(!that.ronghe){
+                    console.log(that.ronghe)
+
+                    if(dY > 100 && !game.dddd){
+
+                        that.gobottom();
+
+                        that.dddd = true;
+                    }
+
+                }
+
+
+
+
+            });
+
+            game.canvas.addEventListener("touchend",function(){
+                /*旋转，并不是每次手指从屏幕上拿开，就应该旋转如果用户的这次触摸，导致了盒子的左边移动，那么我们就不应该出发旋转*/
+                /*手指离开的时候不应该旋转*/
+                if(!yidong && !this.dddd){
+                    that.changeDirection();
+                }
+
+                /*如果手指抬起来我将要把他恢复成*/
+                yidong = false;
+
+
+            });
+
 
         },
 
         /*让他移动*/
         godown:function(){
+            var that = this
             /*我们要进行判断那么我就要切game.map里的字符串，切成4*4的第row 切四位第col列四个数*/
             var qiepian = [];
 
@@ -201,25 +274,37 @@
            if( checktofourfour(qiepian,this.fourfourMap)){
                this.row ++;
                this.createFFBlockBymap();
+               return true;
            }else {
                /*如果不能旋转了就不能下降了说明我们要融合了 把自己加进去*/
                game.map.addFourFourIntoMyMap(this);
 
-
+                /*如果融合了我在*/
                /*测试一下融合地图的情况 */
 
                /*融合了就new 出新的来*/
                game.activeblock = new ActiveBlock();
 
-               console.log(game.map.existBlockMap)
+               that.ronghe = true;
+
+
                /*然后我们需要消除行列*/
 
                game.map.xiaohang();
+
+               return false;
            }
 
 
 
 
+        },
+        gobottom:function(){
+          while (this.godown()){
+              /*如果不能了*/
+              this.godown();
+
+          }
         },
 
         /*根据地图生存矩阵实时运动的根据地图修改*/

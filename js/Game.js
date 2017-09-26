@@ -31,6 +31,8 @@
             //自己的帧管理器
             this.frameUtil = new FrameUtil();
 
+            this.dddd = false
+
 
 
 
